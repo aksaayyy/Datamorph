@@ -19,9 +19,37 @@
 
 ## Installation
 
-### Pre-built binaries
+### 🚀 One-line install (recommended)
 
-Download from the [releases page](https://github.com/aksaayyy/Datamorph/releases).
+**Linux/macOS:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/aksaayyy/Datamorph/main/install.sh | bash
+```
+
+**Manual install:**
+```bash
+curl -fsSL https://github.com/aksaayyy/Datamorph/releases/latest/download/datamorph-linux-amd64 -o ~/.local/bin/datamorph
+chmod +x ~/.local/bin/datamorph
+```
+
+**Windows (PowerShell):**
+```powershell
+iwr https://github.com/aksaayyy/Datamorph/releases/latest/download/datamorph-windows-amd64.exe -OutFile $env:USERPROFILE\datamorph.exe
+# Add to PATH
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";$env:USERPROFILE", [EnvironmentVariableTarget]::User)
+```
+
+### Package manager
+
+**Homebrew** (macOS/Linux):
+```bash
+brew install aksaayyy/tap/datamorph
+```
+
+**Cargo** (requires Rust):
+```bash
+cargo install datamorph --git https://github.com/aksaayyy/Datamorph.git --tag v0.1.0
+```
 
 ### Build from source
 
@@ -32,6 +60,13 @@ git clone https://github.com/aksaayyy/Datamorph.git
 cd Datamorph
 cargo build --release
 # binary at target/release/datamorph
+```
+
+### Verify installation
+
+```bash
+datamorph --version
+# datamorph 0.1.0
 ```
 
 ## Quick start
