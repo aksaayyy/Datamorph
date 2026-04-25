@@ -10,10 +10,12 @@ mod adapters;
 mod csv_adapter;
 mod error;
 mod query;
+mod validation;
 
 use error::{DataMorphError, Result};
 use ast::Value;
 use adapters::{get_adapter_by_name, Adapter};
+use validation::SchemaValidator;
 
 const BANNER: &str = r#"
     ___    _     _             _       
@@ -284,13 +286,24 @@ fn run_command(command: &Commands) -> Result<()> {
         }
 
         Commands::Validate { input, schema } => {
+            // Read and parse input data
             let input_str = read_input(Some(input.clone()))?;
-            let schema_str = std::fs::read_to_string(schema)?;
-            let _schema: serde_json::Value = serde_json::from_str(&schema_str)
-                .map_err(|e| DataMorphError::ValidationError(format!("Invalid JSON Schema: {}", e)))?;
-            let _data: serde_json::Value = serde_json::from_str(&input_str)
-                .map_err(|e| DataMorphError::ValidationError(format!("Invalid JSON: {}", e)))?;
-            println!("{} {} appears valid", "✓".green(), input.green());
+            let fmt = if input == "-" {
+                detect_format_from_content(&input_str)?
+            } else {
+                detect_format(input)?
+            };
+            let adapter = get_adapter_by_name(&fmt)
+                .ok_or_else(|| DataMorphError::UnsupportedFormat(fmt.clone()))?;
+            let value = adapter.parse(&input_str)?;
+
+            // Load and compile JSON Schema
+            let validator = SchemaValidator::from_file(schema)?;
+
+            // Validate the data
+            validator.validate_ast(&value)?;
+
+            println!("{} {} is valid according to schema {}", "✓".green(), input.green(), schema.green());
             Ok(())
         }
 
